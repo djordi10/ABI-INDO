@@ -1,0 +1,73 @@
+* {
+    box-sizing: border-box;
+  }
+  
+  .openBtn {
+    background: #f1f1f1;
+    border: none;
+    padding: 10px 15px;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  
+  .openBtn:hover {
+    background: #bbb;
+  }
+  
+  .overlay {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.582);
+    background-color: rgba(196, 196, 196, 0.795);
+  }
+  
+  .overlay-content {
+    position: relative;
+    top: 30%;
+    width: 80%;
+    text-align: center;
+    margin-top: 30px;
+    margin: auto;
+  }
+  
+  .overlay .closebtn:hover {
+    color: #ccc;
+  }
+  
+  .overlay input[type=text] {
+    padding: 15px;
+    font-size: 17px;
+    border: none;
+    float: left;
+    width: 80%;
+    background: white;
+  }
+  
+  .overlay input[type=text]:hover {
+    background: #f1f1f1;
+  }
+  
+  .overlay button {
+    float: left;
+    width: 20%;
+    padding: 15px;
+    background: #ddd;
+    font-size: 17px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .overlay button:hover {
+    background: #bbb;
+  }
+
+  .responsive-logo {
+    padding:30px;
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+  }
