@@ -1,6 +1,9 @@
 import { Admin, mapAdmin, Owner, ownerContract, member, MemberCertificate } from './model';
 import {
   context, // visibility into account, contract and blockchain details
+  ContractPromiseBatch,
+  Context,
+  u128
 } from "near-sdk-as";
 // --- contract code goes below
 
@@ -42,12 +45,22 @@ export function addAdmin(_address: string): void {
  * 
  * 
  */
-export function generateCertificate(_name: string, _validityDate: u32, _memberADDR:string ): void{
+export function generateCertificate(_name: string, _validityDate: u64 ): void{
   assert(ownerContract.length > 0,"Smart Contract not initialized");
   assert(mapAdmin.contains(context.sender),"sender is not Admin")
-  const newMember = new MemberCertificate(context.sender, _validityDate, _name)
 
-  member.set(_memberADDR,newMember)
+  let new_account_id = _name+"."+ context.contractName;
+  const signer_account_pk = context.senderPublicKey;
+  const current_account_id = context.contractName;
+  const amount: u128 = u128.from("1000000000000000000000") // 0.001 NEAR
+
+  ContractPromiseBatch.create(new_account_id) //create new subaccount 
+    .create_account() //create the account
+    .transfer(amount)//need near for initializazing account
+    .then(current_account_id) // the callback is on the current_account_id
+    
+  const newMember = new MemberCertificate(context.sender, _validityDate, _name)
+  member.set(new_account_id,newMember)
 }
 
 /**
@@ -69,12 +82,28 @@ export function getMember(_memberADDR: string): MemberCertificate | null{
  * 
  * 
  */
- export function setMemberDate(_memberADDR: string,_validityDate: u32): void{
+ export function setMemberDate(_memberADDR: string,_validityDate: u64): void{
   assert(ownerContract.length > 0,"Smart Contract not initialized");
   assert(mapAdmin.contains(context.sender),"sender is not Admin")
   assert(member.contains(_memberADDR),"member does not exist")
-  const currentMember = member.get(_memberADDR);
-  currentMember?.setValidityDate(_validityDate);
+  let currentMember = member.get(_memberADDR);
+  currentMember!.setValidityDate(_validityDate)
+  member.set(_memberADDR,currentMember!)
+}
+
+/**
+ * 
+ * Set ABI Member Active
+ * 
+ * 
+ */
+ export function setMemberActive(_memberADDR: string,_isActive: bool): void{
+  assert(ownerContract.length > 0,"Smart Contract not initialized");
+  assert(mapAdmin.contains(context.sender),"sender is not Admin")
+  assert(member.contains(_memberADDR),"member does not exist")
+  let currentMember = member.get(_memberADDR);
+  currentMember!.setActive(_isActive)
+  member.set(_memberADDR,currentMember!)
 }
 
 /**
@@ -87,8 +116,9 @@ export function getMember(_memberADDR: string): MemberCertificate | null{
   assert(ownerContract.length > 0,"Smart Contract not initialized");
   assert(mapAdmin.contains(context.sender),"sender is not Admin")
   assert(member.contains(_memberADDR),"member does not exist")
-  const currentMember = member.get(_memberADDR);
-  currentMember?.setName(_name);
+  let currentMember = member.get(_memberADDR);
+  currentMember!.setName(_name)
+  member.set(_memberADDR,currentMember!)
 }
 
 /**
@@ -105,4 +135,3 @@ export function checkAdmin(_address: string): bool {
 
   return false;
 }
-

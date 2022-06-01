@@ -49,7 +49,6 @@ async function initContract() {
         sender: walletConnection.getAccountId(),
       }
     );
-  
     return { contract };
 }
 
@@ -92,28 +91,33 @@ export default class Certificate extends React.Component{
 
     fetchCertificate = async (near,_address)=>{
         let digitalContract;
-        let name, validityDate, getError=false;
+        let name, validityDate, isActive,memberSince, getError=false;
         try{
-            digitalContract = await near.contract.getMember({_memberADDR: "koiwazurai.testnet"})
-            console.log("here",digitalContract.validityDate)
+            digitalContract = await near.contract.getMember({_memberADDR: _address})
         }catch(err){
             getError = true;
         }
+        let now=(+new Date());
+        now = now/ 1000;
         try{
             name = digitalContract.name;
+            isActive = digitalContract.isActive;
             validityDate = digitalContract.validityDate
         }catch(err){
             getError = true;
             name=null;
             validityDate = null;
         }
-        
-        if (validityDate ){
-                this.setState({address:'invalid', errorMessage:"The company is no longer the member of Asosiasi Blockchain Indonesia."});
+
+        if (validityDate <= now || name!=null && name!='null' && getError==true && isActive==false){
+            this.setState({address:'invalid', errorMessage:"The company is no longer the member of Asosiasi Blockchain Indonesia."});
+        }else if (!name || !validityDate || name==null || name=='null' || getError==true ){
+            this.setState({address:'invalid', errorMessage:"Please type the correct member certificate contract address"});
+        }else{
+            let address = _address
+            validityDate = timeConverter(validityDate);
+            this.setState({name, validityDate, loading:false,address});
         }
-        let address = _address
-        validityDate = timeConverter(validityDate);
-        this.setState({name, validityDate, loading:false,address});
     }
 
     render(){
