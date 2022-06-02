@@ -29,12 +29,14 @@ export class Admin {
 @nearBindgen
 export class MemberCertificate {
   creator: string;
+  owner: string;
   isActive: bool;
   memberSince: u64;
   validityDate: u64;
   name: string;
   
   constructor(public _creator: string, public _validityDate:u64, public _name:string) {
+    this.owner = context.contractName;
     this.creator = _creator;
     this.name = _name;
     this.validityDate = _validityDate;

@@ -4,11 +4,12 @@ import {timeConverter} from './../../helpers/timeConverter';
 import getConfig from '../../config.js';
 import * as nearAPI from 'near-api-js';
 
+const contract_address = "abi-test.testnet";
 
 async function initContract() {
     // get network configuration values from config.js
     // based on the network ID we pass to getConfig()
-    const nearConfig = getConfig(process.env.NEAR_ENV || 'testnet');
+    const nearConfig = getConfig(process.env.NEAR_ENV || 'testnet'); // if there no env it will default to testnet
   
     // create a keyStore for signing transactions using the user's key
     // which is located in the browser local storage after user logs in
@@ -91,7 +92,7 @@ export default class Certificate extends React.Component{
 
     fetchCertificate = async (near,_address)=>{
         let digitalContract;
-        let name, validityDate, isActive,memberSince, getError=false;
+        let name, validityDate, isActive,memberSince,owner, getError=false;
         try{
             digitalContract = await near.contract.getMember({_memberADDR: _address})
         }catch(err){
@@ -101,6 +102,7 @@ export default class Certificate extends React.Component{
         now = now/ 1000;
         try{
             name = digitalContract.name;
+            owner = digitalContract.owner;
             isActive = digitalContract.isActive;
             validityDate = digitalContract.validityDate
         }catch(err){
@@ -109,7 +111,9 @@ export default class Certificate extends React.Component{
             validityDate = null;
         }
 
-        if (validityDate <= now || name!=null && name!='null' && getError==true && isActive==false){
+        if (name && validityDate && name!=null && name!='null' && getError==false && owner != contract_address){
+            this.setState({address:'invalid', errorMessage:"The owner of the smart contract is not the correct address."});
+        }else if (validityDate <= now || name!=null && name!='null' && getError==true && isActive==false){
             this.setState({address:'invalid', errorMessage:"The company is no longer the member of Asosiasi Blockchain Indonesia."});
         }else if (!name || !validityDate || name==null || name=='null' || getError==true ){
             this.setState({address:'invalid', errorMessage:"Please type the correct member certificate contract address"});
