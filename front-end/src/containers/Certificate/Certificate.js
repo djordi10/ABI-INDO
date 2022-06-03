@@ -86,7 +86,7 @@ export default class Certificate extends React.Component{
         const status = await near.contract.getMember({_memberADDR: address})
         await this.fetchCertificate(near,address);   
         }catch(err){
-            this.setState({address:'invalid', errorMessage:"The owner of the smart contract is not the correct address."});
+            this.setState({address:'invalid', errorMessage:"Please type the correct member certificate contract address."});
         }
     }
 
